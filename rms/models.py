@@ -1,30 +1,35 @@
-from django.contrib.auth.models import User
 from django.db import models
-from django.contrib.postgres.firl
-class StudentClass(models.Model):
-    level = models.CharField(max_length=25, help_text='Eg: 100 Level, 200Level etc')
-    session = models.CharField(max_length=25, help_text='Eg: 2022/2023')
 
-    def get_absolute_url(self):
-        return reverse('student_classes:class_list')
-    
-    def __str__(self):
-        return '%s Academic_Session-%s'%(self.level, self.session)
-
-class Faculty(models.Model):
-    name = models.CharField(max_length=100)
 class Department(models.Model):
-    faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
-    department = models.CharField(max_length=100)
+    name = models.CharField(max_length=255)
+    code = models.CharField(max_length=10)
 
-class Students(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    def __str__(self):
+        return self.name
+
+class Student(models.Model):
+    name = models.CharField(max_length=255)
+    matric_number = models.CharField(max_length=20, unique=True)
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
-    matric_number = models.Charfield(max_length=50)
+    current_cgpa = models.FloatField(default=0)
+
+    def __str__(self):
+        return self.name
 
 class Course(models.Model):
-    course = models.Charfield(max_length=100)
-    course_code = models.CharField(max_length=10)
-class Results(models.Model):
+    name = models.CharField(max_length=255)
+    code = models.CharField(max_length=10)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+
+class Result(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    course = models.ForeignKey(course)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    score = models.FloatField()
+    grade = models.CharField(max_length=2)
+    semester = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.student.name} - {self.course.name}"
