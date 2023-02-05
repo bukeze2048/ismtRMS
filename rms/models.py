@@ -8,13 +8,41 @@ class Department(models.Model):
         return self.name
 
 class Student(models.Model):
-    name = models.CharField(max_length=255)
-    matric_number = models.CharField(max_length=20, unique=True)
+    name = models.CharField(max_length=200)
+    matric_number = models.CharField(max_length=200, unique=True)
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
     current_cgpa = models.FloatField(default=0)
 
+    def calculate_cgpa(self):
+        results = Result.objects.filter(student=self)
+        total_points = 0
+        total_courses = 0
+        for result in results:
+            if result.grade == 'A':
+                total_points += 4 * 3
+                total_courses += 3
+            elif result.grade == 'B':
+                total_points += 3 * 3
+                total_courses += 3
+            elif result.grade == 'C':
+                total_points += 2 * 3
+                total_courses += 3
+            elif result.grade == 'D':
+                total_points += 1 * 3
+                total_courses += 3
+            elif result.grade == 'F':
+                total_courses += 3
+        if total_courses == 0:
+            return 0
+        else:
+            cgpa = total_points / total_courses
+            self.current_cgpa = cgpa
+            self.save()
+            return cgpa
+
     def __str__(self):
         return self.name
+
 
 class Course(models.Model):
     name = models.CharField(max_length=255)
